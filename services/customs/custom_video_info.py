@@ -1,5 +1,4 @@
 # import spacy
-from enum import unique
 import pymongo
 import os 
 
@@ -53,8 +52,6 @@ class VideoInfo():
                     "duration": duration, 
                     "measure":measure 
                 }
-                # print(classified)
-                # print(e['text'], "inicio: ", inicio, "fin: ",fin )
             count+=1
 
     def get_words_vs_secods(self, list_words, secs):
