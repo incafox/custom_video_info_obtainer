@@ -1,0 +1,95 @@
+version: '3.4'
+services:
+
+  # db_service_advances:
+  #   container_name: db_service_advances
+  #   image: mongo
+  #   ports:
+  #     - "27017:27017"
+
+  db_service_scraper:
+    container_name: db_service_scraper
+    image: mongo
+    restart: always
+    volumes:
+      - db_data:/data/db
+    ports:
+      - "27017:27017"
+
+  #db_service_whoami:
+  #  container_name: db_service_whoami
+  #  image: postgres
+  #  environment:
+  #    - POSTGRES_USER=postgres
+  #    - POSTGRES_PASSWORD=admin
+  #    - POSTGRES_DB=dbwhoami
+  #      #volumes:
+  #      #- ./postgres-data:/var/lib/postgresql/data
+  #  ports:
+  #    - "5432:5432"
+
+  # service_advances:
+  #   build:
+  #     context: ./service_advances
+  #     dockerfile: ./Dockerfile.dev
+  #   restart: 'always'
+  #   ports:
+  #     - "5000:5000"
+  #   expose:
+  #     - "4000"
+  #   depends_on:
+  #     - db_service_advances
+
+  service_scraper:
+    container_name: service_scraper
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: 'always'
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    # expose:
+      # - "8000"
+    environment:
+      - DB_NAME=scraps
+      - DB_PORT=27017
+      - DB_HOST=db_service_scraper
+      - DB_SUBTITLES_COL=subtitles
+    depends_on:
+      - db_service_scraper
+
+  redis:
+    image: "redis:6.0.3-alpine"
+    command: redis-server
+    ports:
+      - "6379:6379"
+    depends_on:
+      - db_service_scraper
+
+  # service_whoami:
+  #   build:
+  #     context: ./service_whoami
+  #     dockerfile: ./Dockerfile.dev
+  #   environment:
+  #     - DB_NAME=dbwhoami
+  #     - DB_PORT=5432
+  #     - DB_USER=postgres
+  #     - DB_PASSWORD=admin
+  #     - ENVIRONMENT=development
+  #     - DB_HOST=db_service_whoami
+  #     - SERVER_PORT=4000
+  #     - PRIV_KEY=secret
+  #   restart: 'always'
+  #   ports:
+  #     - "4000:4000"
+  #   expose:
+  #     - "5000"
+  #     - "5432"
+  #   depends_on:
+  #     - db_service_whoami
+  #   volumes:
+  #     - ./service_whoami:/app
+volumes:
+  db_data: {}
